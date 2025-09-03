@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Zoolanding Quick Stats Lambda - SAM Template
+
+Parameters:
+  StatsBucketName:
+    Type: String
+    Default: zoolanding-quick-stats
+    Description: S3 bucket where stats.json files are stored (per app prefix)
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues: [DEBUG, INFO, ERROR]
+    Description: Log level for the Lambda
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Timeout: 10
+    MemorySize: 256
+    Tracing: PassThrough
+
+Resources:
+  QuickStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_function.lambda_handler
+      Description: Reads and updates app stats.json in S3 based on operations
+      Environment:
+        Variables:
+          STATS_BUCKET_NAME: !Ref StatsBucketName
+          LOG_LEVEL: !Ref LogLevel
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub arn:aws:s3:::${StatsBucketName}/*
+      Events:
+        ApiPost:
+          Type: Api
+          Properties:
+            Path: /stats
+            Method: POST
+
+Outputs:
+  ApiUrl:
+    Description: API endpoint URL
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stats
+  FunctionName:
+    Description: Deployed Lambda function name
+    Value: !Ref QuickStatsFunction
