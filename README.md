@@ -58,27 +58,25 @@ python .\local_test.py
 
 ### Deploy with AWS SAM (recommended)
 
-This repo includes a `template.yaml` you can deploy with the AWS SAM CLI.
+For repeatable deployments from this repository:
 
-Prerequisites:
-
-- AWS SAM CLI installed
-- AWS credentials configured
-
-Steps (PowerShell):
-
-```powershell
-# Validate and build
-sam validate --lint
-sam build
-
-# Deploy (guided on first run)
-sam deploy --guided `
-  --stack-name zoolanding-quick-stats `
-  --parameter-overrides StatsBucketName=zoolanding-quick-stats LogLevel=INFO
-
-# After deploy, SAM prints the API URL output
+```bash
+sam deploy
 ```
+
+The checked-in `samconfig.toml` already targets `us-east-1` with the correct stack name and parameter overrides.
+
+The equivalent first non-interactive deployment command is:
+
+```bash
+sam deploy --stack-name zoolanding-quick-stats --region us-east-1 --capabilities CAPABILITY_IAM --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides StatsBucketName=zoolanding-quick-stats LogLevel=INFO
+```
+
+This template now exposes:
+
+- `POST /quick-stats`
+- CORS preflight for `POST,OPTIONS`
+- output `ApiUrl` for the deployed endpoint
 
 ## Environment variables
 

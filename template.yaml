@@ -21,6 +21,15 @@ Globals:
     Tracing: PassThrough
 
 Resources:
+  QuickStatsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowMethods: "'POST,OPTIONS'"
+
   QuickStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -29,8 +38,10 @@ Resources:
       Description: Reads and updates app stats.json in S3 based on operations
       Environment:
         Variables:
-          STATS_BUCKET_NAME: !Ref StatsBucketName
-          LOG_LEVEL: !Ref LogLevel
+          STATS_BUCKET_NAME:
+            Ref: StatsBucketName
+          LOG_LEVEL:
+            Ref: LogLevel
       Policies:
         - Version: '2012-10-17'
           Statement:
@@ -38,18 +49,24 @@ Resources:
               Action:
                 - s3:GetObject
                 - s3:PutObject
-              Resource: !Sub arn:aws:s3:::${StatsBucketName}/*
+              Resource:
+                Fn::Sub: arn:aws:s3:::${StatsBucketName}/*
       Events:
         ApiPost:
           Type: Api
           Properties:
-            Path: /stats
+            RestApiId:
+              Ref: QuickStatsApi
+            Path: /quick-stats
             Method: POST
 
 Outputs:
   ApiUrl:
     Description: API endpoint URL
-    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stats
+    Value:
+      Fn::Sub: https://${QuickStatsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/quick-stats
   FunctionName:
     Description: Deployed Lambda function name
-    Value: !Ref QuickStatsFunction
+    Value:
+      Ref: QuickStatsFunction
+

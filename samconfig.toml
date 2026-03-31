@@ -1,0 +1,9 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "zoolanding-quick-stats"
+region = "us-east-1"
+resolve_s3 = true
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "StatsBucketName=zoolanding-quick-stats LogLevel=INFO"
