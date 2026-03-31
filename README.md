@@ -6,6 +6,17 @@ An AWS Lambda that reads and updates a per-app `stats.json` file in S3 based on 
 - Handler: `lambda_function.lambda_handler`
 - Target bucket: `zoolanding-quick-stats` (configurable via env var `STATS_BUCKET_NAME`)
 
+## Where this fits in Zoolanding
+
+This Lambda is the lightweight stats backend for the Zoolanding frontend platform.
+
+- The Angular app sends `POST` requests to `environment.apiUrl + /quick-stats`.
+- The frontend service boundary lives in `../zoolandingpage/src/app/shared/services/quick-stats.service.ts`.
+- Runtime analytics and event ownership are configured from the frontend payload/runtime layer, not from this repo.
+- Platform architecture and frontend integration context are documented in `../zoolandingpage/docs/02-architecture.md` and `../zoolandingpage/docs/09-quick-stats-lambda.md`.
+
+This repository documents the Lambda itself. The main frontend repo is the source of truth for cross-platform behavior.
+
 ## How it works
 
 - Expects an API Gateway–like event with a JSON string in `event.body`:
@@ -93,6 +104,8 @@ This template now exposes:
   - Ensure `event.body` is a valid JSON string and contains `appName` (string) and `ops` (array).
 - Optimistic concurrency failures:
   - If you pass `ifMatchEtag` and the server’s current ETag differs, you’ll get `ETag mismatch, please retry`.
+- Read-only fetches:
+  - An empty `ops` array is valid and returns the current `stats` document without changing it.
 
 ## CI
 

@@ -2,6 +2,20 @@
 
 This guide dives deeper into the implementation details for the Quick Stats Lambda.
 
+## Platform integration
+
+This Lambda is used by the Zoolanding frontend as the small mutable stats store behind `POST /quick-stats`.
+
+- Frontend caller: `../zoolandingpage/src/app/shared/services/quick-stats.service.ts`
+- Base URL source: `environment.apiUrl` in the frontend app
+- Typical use: increment counters or fetch/update small per-app metrics derived from runtime analytics settings
+
+For platform-level context, read:
+
+- `../zoolandingpage/docs/02-architecture.md`
+- `../zoolandingpage/docs/05-analytics-tracking.md`
+- `../zoolandingpage/docs/09-quick-stats-lambda.md`
+
 ## Endpoints and Event Shape
 
 This Lambda expects an API Gateway proxy integration event. Only `body` and `isBase64Encoded` are used. `headers` are ignored by core logic.
